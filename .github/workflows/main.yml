@@ -3,32 +3,37 @@ name: Build
 on:
   push:
     branches:
-      - main  # Ensure this matches your main branch in GitHub
+      - main  # This will trigger the action on pushes to the main branch
   pull_request:
     types:
       - opened
       - synchronize
-      - reopened
+      - reopened  # This will trigger the action for pull requests when they are opened, synchronized, or reopened
 
 jobs:
   sonarqube:
-    name: SonarQube
-    runs-on: macos-latest  # or switch to ubuntu-latest if macOS is not required
+    name: SonarQube Scan
+    runs-on: macos-latest  # Using macOS, but you can switch to 'ubuntu-latest' if macOS is not specifically required
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Important for SonarQube to understand the history for certain metrics
+          fetch-depth: 0  # Disables shallow clone to ensure SonarQube understands the full git history
+
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
-          java-version: '17'  # Set JDK version to 17
-          distribution: 'temurin'  # Using Temurin as the distribution
+          java-version: '17'  # Set up JDK 17 for the SonarQube scanner
+          distribution: 'temurin'  # Using Temurin distribution
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         with:
           args: >
             -Dsonar.projectKey=nrankovic-practicals
             -Dsonar.organization=nrankovic-practicals
+            -Dsonar.branch.name=${{ github.ref_name }}  # Explicitly set the branch name for the scan
             -Dsonar.host.url=https://sonarcloud.io
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Uses the SONAR_TOKEN from your repository's secrets
