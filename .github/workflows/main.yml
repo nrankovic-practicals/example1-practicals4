@@ -9,24 +9,21 @@ on:
       - main
 
 jobs:
-  build:
+  sonarqube_scan:
     name: Build and Scan with SonarQube
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 17
+    - name: Set up JDK
       uses: actions/setup-java@v2
       with:
         java-version: '17'
-        distribution: 'adopt'
-    - name: Cache SonarQube packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
+        distribution: 'temurin'
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: sonarsource/sonarqube-scan-action@v1.0.0
+      with:
+        args: >
+          -Dsonar.projectKey=nrankovic-practicals
+          -Dsonar.organization=nrankovic-practicals
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
