@@ -1,8 +1,9 @@
 name: Build
+
 on:
   push:
     branches:
-      - main
+      - main  # Ensure this matches your main branch in GitHub
   pull_request:
     types:
       - opened
@@ -12,13 +13,22 @@ on:
 jobs:
   sonarqube:
     name: SonarQube
-    runs-on: macos-latest
+    runs-on: macos-latest  # or switch to ubuntu-latest if macOS is not required
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Important for SonarQube to understand the history for certain metrics
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'  # Set JDK version to 17
+          distribution: 'temurin'  # Using Temurin as the distribution
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
+        with:
+          args: >
+            -Dsonar.projectKey=nrankovic-practicals
+            -Dsonar.organization=nrankovic-practicals
+            -Dsonar.host.url=https://sonarcloud.io
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
